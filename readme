@@ -1,0 +1,31 @@
+import pandas as pd
+import numpy as np
+from scipy.spatial.distance import pdist, squareform
+
+# Create a sample dataframe
+data = {
+    "x": [1, 1.2, 2, 2.3, 4, 4.1],
+    "y": [1, 1.1, 2.5, 2.6, 4.1, 4.2]
+}
+df = pd.DataFrame(data)
+
+# Calculate the pairwise Euclidean distance matrix
+distance_matrix = squareform(pdist(df[['x', 'y']], metric='euclidean'))
+
+# Create groups based on the 0.5 distance threshold
+group_labels = []
+visited = set()
+
+for i in range(len(df)):
+    if i not in visited:
+        # Find all points within 0.5 distance
+        group = np.where(distance_matrix[i] <= 0.5)[0]
+        visited.update(group)
+        group_labels.append(list(group))
+
+# Assign group labels to the dataframe
+df['group'] = -1
+for group_index, points in enumerate(group_labels):
+    df.loc[points, 'group'] = group_index
+
+print(df)
